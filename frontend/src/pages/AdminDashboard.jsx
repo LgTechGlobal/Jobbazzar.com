@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../lib/api';
 import AdminLayout from '../components/AdminLayout';
 import AuthContext from '../context/AuthContext';
 import { 
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
     let isMounted = true;
     const fetchAiSuggestions = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/v1/companies/suggestions?q=${encodeURIComponent(fetchName)}`);
+        const res = await api.get(`/companies/suggestions?q=${encodeURIComponent(fetchName)}`);
         if (isMounted && res.data?.success) {
           setAiSuggestions(res.data.data || []);
         }
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
 
   const fetchDashboardCompanies = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/v1/companies?limit=8');
+      const res = await api.get('/companies?limit=8');
       const list = Array.isArray(res.data.data) ? res.data.data : (res.data.data?.companies || []);
       setDbCompanies(list);
       setDbCompanyCount(res.data.data?.pagination?.total ?? list.length);
@@ -156,7 +156,7 @@ const AdminDashboard = () => {
     setMessage('');
     setShowAiSuggestions(false);
     try {
-      const res = await axios.post('http://localhost:5000/api/v1/companies/fetch', { companyName: targetName });
+      const res = await api.post('/companies/fetch', { companyName: targetName });
       const fetched = res.data.data;
       setFormData({
         ...formData,
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
         longitude: formData.lng ? parseFloat(formData.lng) : undefined,
         foundedYear: formData.foundedYear ? parseInt(formData.foundedYear, 10) : undefined
       };
-      await axios.post('http://localhost:5000/api/v1/companies', payload);
+      await api.post('/companies', payload);
       setMessage('✅ Company saved successfully in MongoDB!');
       setFormData(initialFormState);
       setFetchName('');

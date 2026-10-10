@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import AdminLayout from '../components/AdminLayout';
 import AuthContext from '../context/AuthContext';
 import { 
@@ -27,7 +27,7 @@ const AdminAccessControl = () => {
   const fetchAdmins = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/v1/users/admins');
+      const res = await api.get('/users/admins');
       if (res.data && res.data.data) {
         setAdmins(res.data.data);
       }
@@ -54,7 +54,7 @@ const AdminAccessControl = () => {
 
     try {
       setSubmitting(true);
-      const res = await axios.post('http://localhost:5000/api/v1/users/admins', {
+      const res = await api.post('/users/admins', {
         name: name.trim(),
         email: email.trim(),
         password,
@@ -79,7 +79,7 @@ const AdminAccessControl = () => {
 
     try {
       setDeletingId(id);
-      await axios.delete(`http://localhost:5000/api/v1/users/admins/${id}`);
+      await api.delete(`/users/admins/${id}`);
       setSuccess(`Admin privileges revoked for ${adminEmail}`);
       fetchAdmins();
     } catch (err) {

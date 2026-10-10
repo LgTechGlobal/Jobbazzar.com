@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api, { API_BASE_URL } from '../lib/api';
 import { MapContainer, TileLayer, Marker, ZoomControl, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import useSupercluster from 'use-supercluster';
@@ -266,7 +266,7 @@ const Home = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/v1/companies?limit=1000');
+        const response = await fetch(`${API_BASE_URL}/api/v1/companies?limit=1000`);
         const data = await response.json();
         if (data.success) {
           const companyList = Array.isArray(data.data) ? data.data : (data.data?.companies || []);
@@ -500,7 +500,7 @@ const Home = () => {
     const fetchSuggestions = async () => {
       try {
         setLoadingSuggestions(true);
-        const res = await axios.get(`http://localhost:5000/api/v1/companies/suggestions?q=${encodeURIComponent(searchTerm)}`);
+        const res = await api.get(`/companies/suggestions?q=${encodeURIComponent(searchTerm)}`);
         if (isMounted && res.data?.success) {
           setSuggestions(res.data.data || []);
         }
@@ -593,7 +593,7 @@ const Home = () => {
     setShowSuggestions(false);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/v1/companies/fetch', { companyName: target });
+      const res = await api.post('/companies/fetch', { companyName: target });
       const comp = res.data.data;
       if (comp && comp.name) {
         const lat = parseFloat(comp.latitude) || 20.2961;

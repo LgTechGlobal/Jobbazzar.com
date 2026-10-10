@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import AdminLayout from '../components/AdminLayout';
 import { 
   Building2, Plus, Search, Filter, LogOut, Loader2, Sparkles, 
@@ -46,7 +46,7 @@ const AdminCompanies = () => {
     let isMounted = true;
     const fetchAiSuggestions = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/v1/companies/suggestions?q=${encodeURIComponent(fetchName)}`);
+        const res = await api.get(`/companies/suggestions?q=${encodeURIComponent(fetchName)}`);
         if (isMounted && res.data?.success) {
           setAiSuggestions(res.data.data || []);
         }
@@ -82,7 +82,7 @@ const AdminCompanies = () => {
   const fetchCompaniesList = async () => {
     try {
       setLoadingCompanies(true);
-      const res = await axios.get('http://localhost:5000/api/v1/companies?limit=100');
+      const res = await api.get('/companies?limit=100');
       const list = Array.isArray(res.data.data) ? res.data.data : (res.data.data?.companies || []);
       setCompanies(list);
     } catch (err) {
@@ -117,7 +117,7 @@ const AdminCompanies = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/v1/companies/fetch', { companyName: fetchName.trim() });
+      const res = await api.post('/companies/fetch', { companyName: fetchName.trim() });
       const fetchedData = res.data.data;
       
       setFormData({
@@ -175,7 +175,7 @@ const AdminCompanies = () => {
         longitude: formData.longitude !== undefined && formData.longitude !== '' ? parseFloat(formData.longitude) : undefined,
         foundedYear: formData.foundedYear ? parseInt(formData.foundedYear, 10) : undefined
       };
-      await axios.post('http://localhost:5000/api/v1/companies', payload);
+      await api.post('/companies', payload);
       setMessage('✅ Company saved successfully in MongoDB database!');
       setFormData(initialFormState);
       setFetchName('');
@@ -191,7 +191,7 @@ const AdminCompanies = () => {
   const handleDeleteCompany = async (id, companyName) => {
     if (!window.confirm(`Are you sure you want to delete "${companyName}" from the database?`)) return;
     try {
-      await axios.delete(`http://localhost:5000/api/v1/companies/${id}`);
+      await api.delete(`/companies/${id}`);
       setCompanies(prev => prev.filter(c => c._id !== id));
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete company');

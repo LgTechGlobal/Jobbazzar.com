@@ -1,20 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Set global axios defaults
-axios.defaults.withCredentials = true;
-
-// Setup axios request interceptor to attach token if present in localStorage
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('jb_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+import api from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -34,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       const token = localStorage.getItem('jb_token');
       try {
-        const res = await axios.get('http://localhost:5000/api/v1/auth/me');
+        const res = await api.get('/auth/me');
         setUserInfo(res.data.data);
         localStorage.setItem('jb_user', JSON.stringify(res.data.data));
       } catch (error) {
@@ -51,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await axios.post('http://localhost:5000/api/v1/auth/login', { email, password });
+    const res = await api.post('/auth/login', { email, password });
     const user = res.data.data;
     setUserInfo(user);
     if (user.token) {
@@ -62,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password) => {
-    const res = await axios.post('http://localhost:5000/api/v1/auth/register', { name, email, password });
+    const res = await api.post('/auth/register', { name, email, password });
     const user = res.data.data;
     setUserInfo(user);
     if (user.token) {
@@ -74,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/v1/auth/logout');
+      await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
